@@ -26,7 +26,14 @@ module Spree::Chimpy
         # create the user if it does not exist yet
         Spree::Chimpy.list.subscribe(expected_email) if Spree::Chimpy::Config.subscribe_to_list
 
-        api_call.order_add(hash(order, expected_email))
+        log "[MailChimp] Attempting to add order #{order.number} to MailChimp"
+        begin
+          api_call.order_add(hash(order, expected_email))
+          log "[MailChimp] Added order to MailChimp"
+        rescue Exception => e
+          log "[MailChimp] Error adding order #{order.number}: #{e.message}"
+          log "[MailChimp] #{e.backtrace.inspect}"
+        end
       end
 
       def remove(order)
